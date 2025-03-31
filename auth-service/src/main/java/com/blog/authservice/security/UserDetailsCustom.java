@@ -1,7 +1,6 @@
 package com.blog.authservice.security;
 
 import com.blog.authservice.repository.UserRepository;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,7 +29,7 @@ public class UserDetailsCustom implements UserDetailsService {
         return new User(
                 optionalUser.get().getEmail(),
                 optionalUser.get().getPassword(),
-                null);
+                Collections.emptyList());
     }
 
 }

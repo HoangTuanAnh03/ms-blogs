@@ -12,10 +12,6 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
     Optional<User> findByEmail(String email);
 
-    boolean existsByCompanyIdAndRole(long companyId, Role role);
-
-    //    Optional<User> findById(int email);
-    //
     boolean existsByEmail(String email);
 
     boolean existsByEmailAndActive(String email, Boolean active);
@@ -23,7 +19,4 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
     Optional<User> findFirstByEmailAndActive(String email, Boolean active);
 
     List<User> findByIdIn(List<String> ids);
-
-
-//    List<User> findByCompany(Company company);
 }

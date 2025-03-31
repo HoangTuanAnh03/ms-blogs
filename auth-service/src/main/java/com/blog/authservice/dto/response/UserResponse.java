@@ -18,38 +18,8 @@ public class UserResponse {
     String email;
     String name;
     GenderEnum gender;
-    String address;
     LocalDate dob;
-    @JsonProperty("mobile_number")
-    String mobileNumber;
-    @JsonProperty("updated_at")
-    LocalDateTime updatedAt;
-    @JsonProperty("created_at")
-    LocalDateTime createdAt;
-
+    String avatar;
     @JsonProperty("no_password")
     Boolean noPassword;
-
-    CompanyUser company;
-    RoleUser role;
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class CompanyUser {
-        long id;
-        String name;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class RoleUser {
-        long id;
-        String name;
-    }
 }

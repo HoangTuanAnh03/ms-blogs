@@ -24,14 +24,8 @@ public class UpdateUserRequest {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     LocalDate dob;
 
-    @Pattern(regexp = "^0\\d{9}$", message = "Invalid phone number")
-    @JsonProperty("mobile_number")
-    String mobileNumber;
-
     @Enumerated(EnumType.STRING)
     GenderEnum gender;
 
-    String address;
-
-    long companyId;
+    String avatar;
 }

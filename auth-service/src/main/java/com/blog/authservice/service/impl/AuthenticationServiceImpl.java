@@ -1,10 +1,7 @@
 package com.blog.authservice.service.impl;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jwt.SignedJWT;
 import com.blog.authservice.advice.AppException;
 import com.blog.authservice.advice.ErrorCode;
-import com.blog.authservice.advice.exception.ResourceNotFoundException;
 import com.blog.authservice.dto.request.AuthenticationRequest;
 import com.blog.authservice.dto.request.ExchangeTokenRequest;
 import com.blog.authservice.dto.request.IntrospectRequest;
@@ -18,6 +15,8 @@ import com.blog.authservice.service.InvalidatedTokenService;
 import com.blog.authservice.service.client.OutboundIdentityClient;
 import com.blog.authservice.service.client.OutboundUserClient;
 import com.blog.authservice.util.SecurityUtil;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -62,8 +61,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     protected final String GRANT_TYPE = "authorization_code";
 
     /**
-     * @param code
-     * @return
+     * @param code - Code Google Response
+     * @return - User Details based on a given input code
      */
     @Override
     public AuthenticationResponse outboundAuthenticate(String code) {

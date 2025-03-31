@@ -32,12 +32,6 @@ public interface UserService {
     UserResponse fetchMyInfo();
 
     /**
-     * @param companyId - Input companyId
-     * @return UserResponse Object
-     */
-    UserResponse handleUpdateHR(long companyId) throws PermissionException;
-
-    /**
      * @param request - password
      */
     void createPassword(PasswordCreationRequest request);
@@ -74,11 +68,6 @@ public interface UserService {
      */
     UserResponse handleUpdateUser(String id, UpdateUserRequest updateUserRequest);
 
-    /**
-     * @param id - Input UserId
-     * @return boolean indicating if the delete of User details is successful or not
-     */
-    boolean handleDeleteUser(String id);
 
     List<SimpInfoUserResponse> fetchUserByIdIn(List<String> ids);
 

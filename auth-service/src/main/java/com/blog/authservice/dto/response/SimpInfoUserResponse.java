@@ -17,8 +17,6 @@ public class SimpInfoUserResponse {
     String email;
     String name;
     GenderEnum gender;
-    String address;
     LocalDate dob;
-    @JsonProperty("mobile_number")
-    String mobileNumber;
+    String avatar;
 }

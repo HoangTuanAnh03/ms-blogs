@@ -26,6 +26,7 @@ public class AuthenticationResponse {
         String id;
         String email;
         String name;
+        String avatar;
         Boolean noPassword;
     }
 }

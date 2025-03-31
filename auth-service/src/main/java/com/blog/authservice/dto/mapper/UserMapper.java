@@ -15,22 +15,15 @@ import org.springframework.util.StringUtils;
 public class UserMapper {
 
     public UserResponse toUserResponse(User user) {
-        var roleUser = UserResponse.RoleUser.builder()
-                .id(user.getRole().getId())
-                .name(user.getRole().getName())
-                .build();
 
         return UserResponse.builder()
                         .id(user.getId())
                         .name(user.getName())
                         .dob(user.getDob())
                         .gender(user.getGender())
-                        .address(user.getAddress())
+                        .avatar(user.getAvatar())
                         .email(user.getEmail())
-                        .role(roleUser)
                         .noPassword(!StringUtils.hasText(user.getPassword()))
-                        .createdAt(user.getCreatedAt())
-                        .updatedAt(user.getUpdatedAt())
                         .build();
     }
 
@@ -40,9 +33,8 @@ public class UserMapper {
                 .name(user.getName())
                 .dob(user.getDob())
                 .gender(user.getGender())
-                .address(user.getAddress())
                 .email(user.getEmail())
-                .mobileNumber(user.getMobileNumber())
+                .avatar(user.getAvatar())
                 .build();
     }
 }

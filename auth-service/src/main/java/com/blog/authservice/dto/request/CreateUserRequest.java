@@ -1,10 +1,17 @@
 package com.blog.authservice.dto.request;
 
+import com.blog.authservice.util.constant.GenderEnum;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -21,16 +28,11 @@ public class CreateUserRequest {
 
     @Size(min = 8, max = 20, message = "invalid password")
     String password;
-//    @Past(message = "Date of birth must be before current date")
-//    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-//    LocalDate dob;
-//
-//    @JsonProperty("mobile_number")
-//    @Pattern(regexp = "^0\\d{9}$", message = "Invalid phone number")
-//    String mobileNumber;
-//
-//    @Enumerated(EnumType.STRING)
-//    GenderEnum gender;
-//
-//    String address;
+
+    @Past(message = "Date of birth must be before current date")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    LocalDate dob;
+
+    @Enumerated(EnumType.STRING)
+    GenderEnum gender;
 }

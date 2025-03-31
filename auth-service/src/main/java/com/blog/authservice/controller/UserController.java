@@ -1,6 +1,5 @@
 package com.blog.authservice.controller;
 
-import com.blog.authservice.advice.exception.PermissionException;
 import com.blog.authservice.dto.ApiResponse;
 import com.blog.authservice.dto.request.ForgotPasswordRequest;
 import com.blog.authservice.dto.request.PasswordCreationRequest;
@@ -11,7 +10,6 @@ import com.blog.authservice.dto.response.SimpInfoUserResponse;
 import com.blog.authservice.dto.response.UserResponse;
 import com.blog.authservice.entity.User;
 import com.blog.authservice.service.UserService;
-import com.blog.authservice.util.constant.UsersConstants;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -87,33 +85,6 @@ public class UserController {
                 .message("Update a user")
                 .data(this.userService.handleUpdateUser(id, updateUserRequest))
                 .build();
-    }
-
-    @PutMapping("/updateHR/{companyId}")
-    public ApiResponse<UserResponse> updateHR(@PathVariable(name = "companyId") long companyId) throws PermissionException {
-        return ApiResponse.<UserResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message("Update role HR")
-                .data(this.userService.handleUpdateHR(companyId))
-                .build();
-    }
-
-    @DeleteMapping("/{id}")
-    public ApiResponse<?> deleteUser(@PathVariable("id") String id) {
-        boolean isDeleted = userService.handleDeleteUser(id);
-        if (isDeleted) {
-            return ApiResponse.<String>builder()
-                    .code(HttpStatus.CREATED.value())
-                    .message(UsersConstants.MESSAGE_200)
-                    .data(null)
-                    .build();
-        } else {
-            return ApiResponse.<String>builder()
-                    .code(HttpStatus.EXPECTATION_FAILED.value())
-                    .message(UsersConstants.MESSAGE_417_DELETE)
-                    .data(null)
-                    .build();
-        }
     }
 
     @PostMapping("/forgotPassword")

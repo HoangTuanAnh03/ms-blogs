@@ -3,7 +3,6 @@ package com.blog.authservice.service.impl;
 import com.blog.authservice.advice.AppException;
 import com.blog.authservice.advice.ErrorCode;
 import com.blog.authservice.advice.exception.DuplicateRecordException;
-import com.blog.authservice.advice.exception.PermissionException;
 import com.blog.authservice.advice.exception.ResourceNotFoundException;
 import com.blog.authservice.dto.mapper.UserMapper;
 import com.blog.authservice.dto.request.CreateUserRequest;
@@ -23,6 +22,7 @@ import com.blog.event.NotificationEvent;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +32,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -41,12 +42,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
-    RoleRepository roleRepository;
     VerifyCodeService verifyCodeService;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
@@ -78,33 +79,6 @@ public class UserServiceImpl implements UserService {
     public UserResponse fetchMyInfo() {
         String email = securityUtil.getCurrentUserLogin().orElse(null);
         return this.userMapper.toUserResponse(Objects.requireNonNull(userRepository.findByEmail(email).orElse(null)));
-    }
-
-    /**
-     * @param companyId - Input companyId
-     * @return UserResponse Object
-     */
-    @Override
-    public UserResponse handleUpdateHR(long companyId) throws PermissionException {
-        String email = securityUtil.getCurrentUserLogin().orElse(null);
-
-        User user = userRepository.findByEmail(email).orElse(null);
-
-        Role roleHR = roleRepository.findByName("HR").orElseThrow(
-                () -> new ResourceNotFoundException("Role", "roleName", "HR")
-        );
-
-        if (userRepository.existsByCompanyIdAndRole(companyId, roleHR)){
-            throw new PermissionException("Forbidden");
-        }
-
-        if (user != null) {
-            user.setCompanyId(companyId);
-            user.setRole(roleHR);
-            userRepository.save(user);
-        }
-
-        return userMapper.toUserResponse(user);
     }
 
     /**
@@ -181,6 +155,7 @@ public class UserServiceImpl implements UserService {
      * @param createUserRequest - Input CreateUserRequest Object
      * @return User Details based on a given data saved to database
      */
+    @Transactional
     @Override
     public UserResponse handleCreateUser(CreateUserRequest createUserRequest) {
         User user = userRepository.findByEmail(createUserRequest.getEmail()).orElse(null);
@@ -189,17 +164,13 @@ public class UserServiceImpl implements UserService {
             else userRepository.delete(user);
         }
 
-        Role role = roleRepository.findByName("USER").orElseThrow(
-                () -> new ResourceNotFoundException("Role", "roleName", "USER")
-        );
+        log.info("1");
 
         User newUser = User.builder()
-                .id("").name(createUserRequest.getName())
-//                .gender(newUser.getGender())
-//                .address(newUser.getAddress())
-//                .dob(newUser.getDob())
+                .name(createUserRequest.getName())
+                .gender(createUserRequest.getGender())
+                .dob(createUserRequest.getDob())
                 .email(createUserRequest.getEmail())
-                .role(role)
                 .password(passwordEncoder.encode(createUserRequest.getPassword()))
                 .active(false)
                 .build();
@@ -217,8 +188,10 @@ public class UserServiceImpl implements UserService {
                 .type(VerifyTypeEnum.REGISTER)
                 .email(createUserRequest.getEmail())
                 .exp(LocalDateTime.now()).build());
+        log.info("1");
 
         userRepository.save(newUser);
+        log.info("2");
 
         Map<String, String> param = new HashMap<>();
         param.put("code", code);
@@ -233,7 +206,8 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         // Publish message to kafka
-        kafkaTemplate.send("notification-delivery", notificationEvent);
+        log.info("aaaaaaaaaaaaaaaaa");
+//        kafkaTemplate.send("notification-delivery", notificationEvent);
 
         return this.userMapper.toUserResponse(newUser);
     }
@@ -250,34 +224,11 @@ public class UserServiceImpl implements UserService {
         );
 
         currentUser.setName(updateUserRequest.getName());
-        currentUser.setAddress(updateUserRequest.getAddress());
         currentUser.setGender(updateUserRequest.getGender());
         currentUser.setDob(updateUserRequest.getDob());
-        currentUser.setMobileNumber(updateUserRequest.getMobileNumber());
-        //  set company
-
-        // check company
-//            if (reqUser.getCompany() != null) {
-//                Optional<Company> companyOptional = this.companyService.findById(reqUser.getCompany().getId());
-//                currentUser.setCompany(companyOptional.isPresent() ? companyOptional.get() : null);
-//            }
 
         currentUser = this.userRepository.save(currentUser);
         return this.userMapper.toUserResponse(currentUser);
-    }
-
-    /**
-     * @param id - Input UserId
-     * @return boolean indicating if the delete of User details is successful or not
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @Override
-    public boolean handleDeleteUser(String id) {
-        User user = this.userRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("User", "userId", id)
-        );
-        this.userRepository.deleteById(user.getId());
-        return true;
     }
 
     /**
