@@ -8,15 +8,21 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
-        <module name="service-registry" />
         <module name="auth-service" />
+        <module name="service-registry" />
+        <module name="notification-service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="notification" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth-service" options="-parameters" />
       <module name="config-server" options="-parameters" />
+      <module name="notification" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
       <module name="service-registry" options="-parameters" />
     </option>
   </component>

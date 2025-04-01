@@ -164,8 +164,6 @@ public class UserServiceImpl implements UserService {
             else userRepository.delete(user);
         }
 
-        log.info("1");
-
         User newUser = User.builder()
                 .name(createUserRequest.getName())
                 .gender(createUserRequest.getGender())
@@ -188,10 +186,8 @@ public class UserServiceImpl implements UserService {
                 .type(VerifyTypeEnum.REGISTER)
                 .email(createUserRequest.getEmail())
                 .exp(LocalDateTime.now()).build());
-        log.info("1");
 
         userRepository.save(newUser);
-        log.info("2");
 
         Map<String, String> param = new HashMap<>();
         param.put("code", code);
@@ -206,8 +202,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         // Publish message to kafka
-        log.info("aaaaaaaaaaaaaaaaa");
-//        kafkaTemplate.send("notification-delivery", notificationEvent);
+        kafkaTemplate.send("notification-delivery", notificationEvent);
 
         return this.userMapper.toUserResponse(newUser);
     }

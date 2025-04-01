@@ -1,0 +1,67 @@
+server:
+  port: 8130
+
+spring:
+  application:
+    name: "notification-service"
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+# Mail
+brevo:
+  api-key: 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
+
+# Mail
+mailServer:
+  host: smtp.gmail.com
+  port: 587
+  email: hoangtuananh1772003@gmail.com
+  password: lzzhcqksxdpthcqu
+  protocol: smtp
+  isSSL: false
+
+api:
+  verify-register: "http://localhost:3000/verify/register?code="
+  verify-forgot-password: "http://localhost:3000/users/password/edit?code="
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+
+endpoints:
+  shutdown:
+    enabled: true
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
