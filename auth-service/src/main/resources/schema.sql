@@ -16,11 +16,9 @@ SET time_zone = "+00:00";
 
 
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `users`
 --
-
 CREATE TABLE IF NOT EXISTS `users`
 (
     `id`         varchar(255) NOT NULL,
@@ -34,12 +32,13 @@ CREATE TABLE IF NOT EXISTS `users`
     `email`      varchar(255) DEFAULT NULL,
     `gender`     enum('FEMALE','MALE') DEFAULT 'FEMALE',
     `name`       varchar(255) DEFAULT NULL,
+    `role`       varchar(255) DEFAULT 'USER',
     `password`   varchar(255) DEFAULT NULL,
+    `is_locked`  bit(1)       DEFAULT 0,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO users (id, created_at, created_by, updated_at, updated_by, active, avatar, dob, email, gender, name,
-                   password)
+INSERT INTO users (id, created_at, created_by, updated_at, updated_by, active, avatar, dob, email, gender, name, role, password, is_locked)
 SELECT 'e692cd89-e09e-4651-afb8-8956d349ff6c',
        NOW(),
        'system',
@@ -51,8 +50,27 @@ SELECT 'e692cd89-e09e-4651-afb8-8956d349ff6c',
        'user@gmail.com',
        'FEMALE',
        'Default User',
-       '$2a$10$EJkL.sXN6Tg.NHzrmTk7DeWJf2lO/QYAJk7x7S41T4iHlgfimeUQu' WHERE NOT EXISTS (SELECT 1 FROM users);
+       'USER',
+       '$2a$10$EJkL.sXN6Tg.NHzrmTk7DeWJf2lO/QYAJk7x7S41T4iHlgfimeUQu',
+       0 WHERE NOT EXISTS (SELECT 1 FROM users);
 
+INSERT INTO users (id, created_at, created_by, updated_at, updated_by, active, avatar, dob, email, gender, name, role, password, is_locked)
+SELECT
+    'a85f7cb2-9fe4-42d3-b821-4f6e95d7f761',
+    NOW(),
+    'system',
+    NOW(),
+    'system',
+    1,
+    NULL,
+    '1990-01-01',
+    'admin@gmail.com',
+    'MALE',
+    'System Administrator',
+    'ADMIN',
+    '$2a$10$EJkL.sXN6Tg.NHzrmTk7DeWJf2lO/QYAJk7x7S41T4iHlgfimeUQu',
+    0
+    WHERE NOT EXISTS (SELECT 1 FROM users WHERE role = 'ADMIN');
 -- --------------------------------------------------------
 
 --

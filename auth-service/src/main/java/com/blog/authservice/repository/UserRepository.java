@@ -16,7 +16,9 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
 
     boolean existsByEmailAndActive(String email, Boolean active);
 
-    Optional<User> findFirstByEmailAndActive(String email, Boolean active);
+    Optional<User> findFirstByEmailAndActiveAndIsLocked(String email, Boolean active, Boolean lock);
+
+    Optional<User> findByIdAndActive(String id, Boolean active);
 
     List<User> findByIdIn(List<String> ids);
 }

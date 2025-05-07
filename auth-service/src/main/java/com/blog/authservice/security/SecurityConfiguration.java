@@ -1,5 +1,6 @@
 package com.blog.authservice.security;
 
+import com.blog.authservice.util.constant.PredefinedRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -40,6 +41,7 @@ public class SecurityConfiguration {
                                            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
                 .permitAll()
+                .requestMatchers("/users/lock/*").hasAuthority(PredefinedRole.ROLE_ADMIN)
                 .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer

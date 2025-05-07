@@ -6,6 +6,7 @@ import com.blog.authservice.advice.exception.DuplicateRecordException;
 import com.blog.authservice.advice.exception.ResourceNotFoundException;
 import com.blog.authservice.dto.mapper.UserMapper;
 import com.blog.authservice.dto.request.CreateUserRequest;
+import com.blog.authservice.dto.request.LockRequest;
 import com.blog.authservice.dto.request.PasswordCreationRequest;
 import com.blog.authservice.dto.request.UpdateUserRequest;
 import com.blog.authservice.dto.response.ResultPaginationDTO;
@@ -28,7 +29,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -126,10 +126,10 @@ public class UserServiceImpl implements UserService {
      * @param pageable - page, size, sort(field,asc(desc))
      * @return ResultPaginationDTO based on a given spec and pageable
      */
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public ResultPaginationDTO fetchAllUser(Specification<User> spec, Pageable pageable) {
-        Page<User> pageUser = this.userRepository.findAll(spec, pageable);
+        Specification<User> finalSpec = Specification.where(spec).and((root, query, criteriaBuilder) -> criteriaBuilder.notEqual(root.get("role"), "ADMIN"));
+        Page<User> pageUser = this.userRepository.findAll(finalSpec, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
 
@@ -227,6 +227,23 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * @param id          - Input UserId
+     * @param lockRequest - Input LockRequest Object
+     * @return User Details based on a given data updated to database
+     */
+    @Override
+    public UserResponse handlerLockUser(String id, LockRequest lockRequest) {
+        User user = userRepository.findByIdAndActive(id, true).orElseThrow(
+                () -> new ResourceNotFoundException("User", "userId", id)
+        );
+
+        user.setIsLocked(lockRequest.getLock());
+        userRepository.save(user);
+
+        return this.userMapper.toUserResponse(user);
+    }
+
+    /**
      * @param ids
      * @return
      */
@@ -241,7 +258,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Boolean forgotPassword(String email) {
-        User user = userRepository.findFirstByEmailAndActive(email, true).orElseThrow(
+        User user = userRepository.findFirstByEmailAndActiveAndIsLocked(email, true, false).orElseThrow(
             () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         );
 

@@ -24,6 +24,7 @@ public class UserMapper {
                         .avatar(user.getAvatar())
                         .email(user.getEmail())
                         .noPassword(!StringUtils.hasText(user.getPassword()))
+                        .isLocked(user.getIsLocked())
                         .build();
     }
 

@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 @Slf4j
@@ -72,6 +73,7 @@ public class SecurityUtil {
                         ).toEpochMilli()
                 ))
                 .jwtID(UUID.randomUUID().toString())
+                .claim("scope", buildScope(user))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -130,5 +132,23 @@ public class SecurityUtil {
             return s;
         }
         return null;
+    }
+
+    /**
+     * Build the Scope( Role)
+     *
+     * @return role
+     */
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+
+//        if (!CollectionUtils.isEmpty((Collection<?>) user.getRole()))
+//            user.getRole().forEach(role -> {
+        stringJoiner.add("ROLE_" + user.getRole());
+//                if (!CollectionUtils.isEmpty(role.getPermissions()))
+//                    role.getPermissions().forEach(permission -> stringJoiner.add(permission.getName()));
+//            });
+
+        return stringJoiner.toString();
     }
 }

@@ -124,7 +124,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         var user = userRepository
-                .findFirstByEmailAndActive(request.getEmail(), true)
+                .findFirstByEmailAndActiveAndIsLocked(request.getEmail(), true, false)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return createAuthenticationResponse(user);
@@ -183,6 +183,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .email(user.getEmail())
                 .name(user.getName())
                 .noPassword(!StringUtils.hasText(user.getPassword()))
+                .role("ROLE_" + user.getRole())
                 .build();
 
         return AuthenticationResponse.builder()

@@ -2,6 +2,7 @@ package com.blog.authservice.controller;
 
 import com.blog.authservice.dto.ApiResponse;
 import com.blog.authservice.dto.request.ForgotPasswordRequest;
+import com.blog.authservice.dto.request.LockRequest;
 import com.blog.authservice.dto.request.PasswordCreationRequest;
 import com.blog.authservice.dto.request.UpdateUserRequest;
 import com.blog.authservice.dto.response.AuthenticationResponse;
@@ -84,6 +85,15 @@ public class UserController {
                 .code(HttpStatus.OK.value())
                 .message("Update a user")
                 .data(this.userService.handleUpdateUser(id, updateUserRequest))
+                .build();
+    }
+
+    @PutMapping("/lock/{id}")
+    public ApiResponse<UserResponse> updateUser(@PathVariable("id") String id, @Valid @RequestBody LockRequest lockRequest) {
+        return ApiResponse.<UserResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Lock or Unlock a user")
+                .data(this.userService.handlerLockUser(id, lockRequest))
                 .build();
     }
 

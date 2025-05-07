@@ -22,4 +22,6 @@ public class UserResponse {
     String avatar;
     @JsonProperty("no_password")
     Boolean noPassword;
+    @JsonProperty("is_locked")
+    Boolean isLocked;
 }

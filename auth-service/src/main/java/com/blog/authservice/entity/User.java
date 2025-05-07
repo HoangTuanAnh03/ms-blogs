@@ -36,4 +36,8 @@ public class User extends BaseEntity {
     Boolean active;
 
     String avatar;
+
+    String role;
+
+    Boolean isLocked;
 }
