@@ -171,6 +171,8 @@ public class UserServiceImpl implements UserService {
                 .email(createUserRequest.getEmail())
                 .password(passwordEncoder.encode(createUserRequest.getPassword()))
                 .active(false)
+                .role("USER")
+                .isLocked(false)
                 .build();
 
         VerificationCode verificationCode = verifyCodeService.findByEmail(createUserRequest.getEmail());
@@ -221,7 +223,7 @@ public class UserServiceImpl implements UserService {
         currentUser.setName(updateUserRequest.getName());
         currentUser.setGender(updateUserRequest.getGender());
         currentUser.setDob(updateUserRequest.getDob());
-
+        currentUser.setAvatar(updateUserRequest.getAvatar());
         currentUser = this.userRepository.save(currentUser);
         return this.userMapper.toUserResponse(currentUser);
     }

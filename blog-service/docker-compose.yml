@@ -1,0 +1,9 @@
+services:
+  mysql-blog:
+    image: mysql:8
+    container_name: mysql-blog
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: blogdb
+      MYSQL_ROOT_PASSWORD: root

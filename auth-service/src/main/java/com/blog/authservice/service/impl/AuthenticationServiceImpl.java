@@ -126,7 +126,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var user = userRepository
                 .findFirstByEmailAndActiveAndIsLocked(request.getEmail(), true, false)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
+        System.out.println(user.getName());
         return createAuthenticationResponse(user);
     }
 

@@ -78,6 +78,18 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("/tdf")
+    public ApiResponse<ResultPaginationDTO> getAllUser2(
+            @Filter Specification<User> spec,
+            Pageable pageable) {
+
+        return ApiResponse.<ResultPaginationDTO>builder()
+                .code(HttpStatus.OK.value())
+                .message("Fetch all users")
+                .data(this.userService.fetchAllUser(spec, pageable))
+                .build();
+    }
+
 
     @PutMapping("/{id}")
     public ApiResponse<UserResponse> updateUser(@PathVariable("id") String id, @Valid @RequestBody UpdateUserRequest updateUserRequest) {

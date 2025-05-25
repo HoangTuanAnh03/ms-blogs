@@ -20,6 +20,7 @@ public class SecurityConfiguration {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/users/forgotPassword",
             "/users/fetchUserById",
+            "/users/fetchUserByIdIn",
             "/auth/**",
             "/actuator/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html#/"
@@ -41,7 +42,8 @@ public class SecurityConfiguration {
                                            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
                 .permitAll()
-                .requestMatchers("/users/lock/*").hasAuthority(PredefinedRole.ROLE_ADMIN)
+//                .requestMatchers("/users/lock/*").hasAuthority(PredefinedRole.ROLE_ADMIN)
+//                .requestMatchers("/users").hasAuthority(PredefinedRole.ROLE_ADMIN)
                 .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer

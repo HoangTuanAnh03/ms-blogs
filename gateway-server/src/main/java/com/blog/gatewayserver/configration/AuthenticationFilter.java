@@ -15,6 +15,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -46,36 +47,102 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/auth/.*",
     };
 
-    @Override
+
+//    @Override
+//    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+//        log.info("Enter authentication filter....");
+//
+////        System.out.println(exchange.getRequest().getURI().getPath());
+////        System.out.println(isPublicEndpoint(exchange.getRequest()));
+//        if (isPublicEndpoint(exchange.getRequest()))
+//            return chain.filter(exchange);
+//
+//        // Get token from authorization header
+//        List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
+//        if (CollectionUtils.isEmpty(authHeader))
+//            return unauthenticated(exchange.getResponse());
+//
+//        String token = authHeader.get(0).replace("Bearer ", "");
+//        log.info("Token: {}", token);
+//
+//        return authService.introspect(token).flatMap(introspectResponse -> {
+//            if (introspectResponse.getData().isValid())
+//                return chain.filter(
+//                        exchange.mutate().request(
+//                                exchange.getRequest().mutate()
+//                                        .header(CustomHeaders.X_AUTH_USER_ID, introspectResponse.getData().getUid())
+//                                        .header(CustomHeaders.X_AUTH_USER_AUTHORITIES, introspectResponse.getData().getAuthorities())
+//                                        .build()
+//                        ).build()
+//                );
+//            else
+//                return unauthenticated(exchange.getResponse());
+//        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+//    }
+
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("Enter authentication filter....");
 
-        if (isPublicEndpoint(exchange.getRequest()))
+        ServerHttpRequest request = exchange.getRequest();
+        String path = request.getURI().getPath();
+        HttpMethod method = request.getMethod();
+        List<String> authHeader = request.getHeaders().get(HttpHeaders.AUTHORIZATION);
+        String token = null;
+
+        if (!CollectionUtils.isEmpty(authHeader)) {
+            token = authHeader.get(0).replace("Bearer ", "");
+            log.info("Token: {}", token);
+        }
+
+        if (isPublicEndpoint(request)) {
             return chain.filter(exchange);
+        }
 
-        // Get token from authorization header
-        List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
-        if (CollectionUtils.isEmpty(authHeader))
+        if (path.matches(apiPrefix + "/blog/admin(?:/.*)?")) {
+            if (token == null) return unauthenticated(exchange.getResponse());
+        }
+
+        if (path.matches(apiPrefix + "/blog/.*") && method == HttpMethod.GET) {
+            if (token != null) {
+                return authService.introspect(token).flatMap(introspectResponse -> {
+                    if (introspectResponse.getData().isValid()) {
+                        return chain.filter(
+                                exchange.mutate().request(
+                                        request.mutate()
+                                                .header(CustomHeaders.X_AUTH_USER_ID, introspectResponse.getData().getUid())
+                                                .header(CustomHeaders.X_AUTH_USER_AUTHORITIES, introspectResponse.getData().getAuthorities())
+                                                .build()
+                                ).build()
+                        );
+                    } else {
+                        return chain.filter(exchange);
+                    }
+                }).onErrorResume(throwable -> chain.filter(exchange));
+            }
+            return chain.filter(exchange);
+        }
+
+        if (token == null) {
             return unauthenticated(exchange.getResponse());
-
-        String token = authHeader.get(0).replace("Bearer ", "");
-        log.info("Token: {}", token);
+        }
 
         return authService.introspect(token).flatMap(introspectResponse -> {
-            if (introspectResponse.getData().isValid())
+            if (introspectResponse.getData().isValid()) {
+                log.info("token2: {}", introspectResponse.getData().getUid());
                 return chain.filter(
                         exchange.mutate().request(
-                                exchange.getRequest().mutate()
+                                request.mutate()
                                         .header(CustomHeaders.X_AUTH_USER_ID, introspectResponse.getData().getUid())
                                         .header(CustomHeaders.X_AUTH_USER_AUTHORITIES, introspectResponse.getData().getAuthorities())
+//                                        .header("Authorization", "Bearer " + token)
                                         .build()
                         ).build()
                 );
-            else
+            } else {
                 return unauthenticated(exchange.getResponse());
+            }
         }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
     }
-
     @Override
     public int getOrder() {
         return -1;
@@ -103,7 +170,17 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private boolean isPublicEndpoint(ServerHttpRequest request){
+        String path = request.getURI().getPath();
+//        HttpMethod method = request.getMethod();
+////        return Arrays.stream(publicEndpoints)
+////                .anyMatch(s -> request.getURI().getPath().matches(apiPrefix + s));
+//
+//        if (path.matches(apiPrefix + "/blog/.*")) {
+//            return method == HttpMethod.GET;
+//        }
+
+//        System.out.println(path);
         return Arrays.stream(publicEndpoints)
-                .anyMatch(s -> request.getURI().getPath().matches(apiPrefix + s));
+                .anyMatch(s -> path.matches(apiPrefix + s));
     }
 }
